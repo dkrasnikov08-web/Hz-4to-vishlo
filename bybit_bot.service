@@ -1,0 +1,51 @@
+[Unit]
+Description=Bybit Trading Bot (Momentum/Volatility)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=10
+
+[Service]
+Type=simple
+
+# ── Пользователь без привилегий ────────────────────────────────────
+# НЕ запускать от root. Создайте отдельного пользователя:
+#   sudo useradd --system --shell /usr/sbin/nologin --home /opt/bybit_bot bybit_bot
+User=bybit_bot
+Group=bybit_bot
+
+# ── Рабочая директория и запуск ────────────────────────────────────
+WorkingDirectory=/opt/bybit_bot
+ExecStart=/opt/bybit_bot/venv/bin/python3 /opt/bybit_bot/main.py
+
+# ── Секреты ──────────────────────────────────────────────────────────
+# EnvironmentFile читает .env во время запуска процесса, но сам файл
+# .env НЕ виден в `systemctl show` и не попадает в журнал systemd.
+# Файл должен существовать и иметь права 600, владелец — bybit_bot.
+EnvironmentFile=/opt/bybit_bot/.env
+
+# ── Автоперезапуск при сбое (сеть/биржа/краш) ──────────────────────
+Restart=on-failure
+RestartSec=10
+
+# ── Жёсткая изоляция (systemd hardening) ───────────────────────────
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/bybit_bot
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+
+# ── Логи через journald (не дублировать в файл без необходимости) ─
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bybit_bot
+
+[Install]
+WantedBy=multi-user.target
