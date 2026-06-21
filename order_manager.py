@@ -135,3 +135,24 @@ class OrderManager:
         except Exception as e:
             log.error(f"[{symbol}] Ошибка get_positions: {e}")
         return False
+
+    def get_open_positions(self) -> list[dict]:
+        """Возвращает список всех открытых позиций."""
+        try:
+            resp = self.session.get_positions(category="linear", settleCoin="USDT")
+            positions = []
+            for pos in resp["result"]["list"]:
+                size = float(pos.get("size", 0))
+                if size > 0:
+                    positions.append({
+                        "symbol": pos["symbol"],
+                        "side": "long" if pos["side"] == "Buy" else "short",
+                        "size": size,
+                        "entry_price": float(pos.get("avgPrice", 0)),
+                        "unrealised_pnl": float(pos.get("unrealisedPnl", 0)),
+                        "mark_price": float(pos.get("markPrice", 0)),
+                    })
+            return positions
+        except Exception as e:
+            log.error(f"Ошибка get_open_positions: {e}")
+            return []

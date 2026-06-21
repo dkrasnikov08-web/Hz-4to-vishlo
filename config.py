@@ -81,6 +81,14 @@ FIRST5_START_M       = 30
 FIRST5_END_H         = 9
 FIRST5_END_M         = 35
 
+# ── Telegram ─────────────────────────────────────────────────────────
+TG_TOKEN   = os.getenv("TG_TOKEN", "")
+TG_CHAT_ID = os.getenv("TG_CHAT_ID", "")
+
+# ── Безопасность ────────────────────────────────────────────────────
+STARTUP_VALIDATION = True   # проверять API-ключи и баланс при старте
+POSITION_MONITOR_INTERVAL = 60  # сек, проверка закрытых позиций
+
 # ── Разное ───────────────────────────────────────────────────────────
 RECV_WINDOW   = 5000
 SLEEP_SECONDS = 0.1
